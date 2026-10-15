@@ -28,12 +28,13 @@ Priorità: 1 → 2 → 3 → 5 sono essenziali; 4 e gli opzionali solo se avanza
 Meglio pochi esperimenti ben spiegati che molte tecniche elencate.
 
 ## 3. Output finali attesi
-Tutto riproducibile da zero eseguendo i notebook in ordine.
+Tutto riproducibile da zero con `python main.py` (nessun notebook).
 
 **Tabelle** in `results/` (CSV):
 - `attribute_classification.csv` — colonna, ruolo (identifier / QI / sensitive / other), motivazione
 - `baseline.csv` — uniqueness, linkage rate, AUC e accuracy sui dati originali
-- `experiments.csv` — una riga per configurazione: tecnica, parametri, k effettivo,
+- `experiments.csv` — una riga per configurazione (incluse le righe `original` di
+  baseline, così la R-U map legge un solo file): tecnica, parametri, k effettivo,
   ℓ, t, uniqueness, linkage rate, AUC, information loss, discernibility,
   % soppressi, tempo. **È la tabella principale**: R-U map e conclusioni derivano da qui.
 
@@ -42,15 +43,17 @@ Tutto riproducibile da zero eseguendo i notebook in ordine.
 - `equivalence_class_sizes_original.png` — quanti record sono unici / in classi piccole
 - `risk_vs_k.png` — uniqueness e linkage rate al variare di k
 - `l_t_vs_k.png` — ℓ e t risultanti al variare di k (con soglia ℓ=2 e base rate)
-- `homogeneity_example.png` (o tabella) — esempio concreto di classe k-anonima ma omogenea
+- `homogeneity_example.png` (o tabella in `results/`) — esempio concreto di classe k-anonima ma omogenea
+  Le classi non stanno in `experiments.csv`: `03_experiments.py` salva
+  `results/homogeneity_example.csv` (classi k-anonime con ℓ=1 / più lontane da base rate) e `04` lo legge.
 - `ru_map.png` — rischio (asse y) vs utilità (asse x), un punto per configurazione
 
 **Snippet per le slide**: le funzioni chiave (`k_anonymize_fulldomain`,
 `l_diversity`, `t_closeness`, una tecnica perturbativa) devono essere brevi e
 leggibili, così da poterle mostrare in 2–3 slide.
 
-**Numeri chiave** da riportare a fine notebook `06_ru_map` in una cella di
-riepilogo: % record unici prima/dopo, k scelto come compromesso, perdita di AUC
+**Numeri chiave** stampati a fine `03_experiments.py` e salvati in
+`results/summary.md`: % record unici prima/dopo, k scelto come compromesso, perdita di AUC
 corrispondente, ℓ e t ottenuti.
 
 ## 4. Dataset
@@ -105,9 +108,14 @@ src/hierarchies.py  gerarchie e generalize(df, levels)
 src/risk.py         uniqueness, record linkage, k, ℓ-diversity, t-closeness
 src/utility.py      classificatore (AUC), information loss, discernibility
 src/protection.py   masking, k-anonymity full-domain e Mondrian, perturbative
-notebooks/          01_eda, 02_baseline, 03_k_anonymity,
-                    04_l_diversity_t_closeness, 05_perturbative, 06_ru_map
-results/            tabelle CSV (sezione 3)
+scripts/01_eda.py          statistiche descrittive (stampate) + qi_distributions.png,
+                           equivalence_class_sizes_original.png, attribute_classification.csv
+scripts/02_baseline.py     rischio e utilità sui dati originali → baseline.csv
+scripts/03_experiments.py  k-anonymity, ℓ/t, perturbative → experiments.csv, summary.md
+scripts/04_figures.py      risk_vs_k, l_t_vs_k, homogeneity_example, ru_map
+                           (legge solo i CSV: si rifanno le figure senza rieseguire gli esperimenti)
+main.py             esegue gli script in ordine; opzione per lanciarne uno solo
+results/            tabelle CSV + summary.md (sezione 3)
 figures/            figure PNG (sezione 3)
 ```
 
@@ -122,11 +130,14 @@ figures/            figure PNG (sezione 3)
 
 ## 9. Convenzioni e comandi
 - Python 3.11+, pandas/numpy/scipy/scikit-learn/seaborn; virtualenv `.venv/`.
-- Seed `42` ovunque. Funzioni pure in `src/`; notebook solo per orchestrare.
+- Seed `42` ovunque. Logica in funzioni pure in `src/`; gli script in `scripts/`
+  orchestrano, stampano un riepilogo leggibile e salvano CSV/figure.
+- Ogni script eseguibile da solo dalla root: `python scripts/0X_nome.py`.
 - Non committare mai `data/raw/`.
 ```bash
 bash setup.sh                                               # primo setup
 source .venv/bin/activate
 python -c "from src.data import load; print(load().shape)"  # verifica dati
-jupyter lab
+python main.py                                              # tutta la pipeline
+python scripts/04_figures.py                                # solo le figure
 ```

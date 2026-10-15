@@ -14,17 +14,25 @@ con misura del trade-off rischio/utilità tramite R-U confidentiality map.
 ## Struttura
 ```
 src/
-  data.py        caricamento, pulizia, nomi colonne, identifier sintetici
-  risk.py        sample uniqueness, k per classe di equivalenza, record linkage
-  utility.py     baseline di utilità (logistic regression: accuracy, AUC)
-  protection.py  tecniche di masking (non perturbative / perturbative)
-notebooks/       analisi passo-passo (EDA, rischio, protezione, R-U map)
-figures/         grafici esportati per report e slide
-report/          report finale (template PPIA_HOMEWORK_1)
-slides/          presentazione 7+3 min (template PPIA_HW1)
-PROMPT_LOG.md    log dei prompt GenAI (richiesto per la disclosure)
+  data.py         caricamento, pulizia, identifier sintetici, sanitize
+  hierarchies.py  gerarchie di generalizzazione
+  risk.py         uniqueness, record linkage, k, ℓ-diversity, t-closeness
+  utility.py      classificatore (AUC), information loss, discernibility
+  protection.py   k-anonymity (full-domain, Mondrian), tecniche perturbative
+scripts/          pipeline numerata (01_eda, 02_baseline, 03_experiments, 04_figures)
+main.py           esegue la pipeline
+results/          tabelle CSV e summary.md
+figures/          grafici PNG (300 dpi) per report e slide
 ```
 
+## Uso
+```bash
+bash setup.sh                  # primo setup (crea .venv e installa le dipendenze)
+source .venv/bin/activate
+python main.py                 # tutta la pipeline
+python main.py 02              # un solo script
+python scripts/04_figures.py   # solo le figure (legge i CSV in results/)
+```
 
 ## Scadenze
 - 25/10/2026 consegna – 26/10/2026 presentazione

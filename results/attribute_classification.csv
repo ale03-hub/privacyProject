@@ -1,0 +1,28 @@
+column,role,motivation
+ID,identifier,"Directly identifies a customer (row id, synthetic customer code / phone simulating a real release)"
+customer_code,identifier,"Directly identifies a customer (row id, synthetic customer code / phone simulating a real release)"
+phone,identifier,"Directly identifies a customer (row id, synthetic customer code / phone simulating a real release)"
+SEX,QI,Publicly known / observable; not unique alone but identifying in combination
+EDUCATION,QI,"Available in external sources (e.g. registries, social profiles)"
+MARRIAGE,QI,Available in external sources (e.g. registries)
+AGE,QI,Publicly known; very discriminating when combined with the other QIs
+default,sensitive,"Main sensitive attribute: credit default (binary, ~22% positive)"
+LIMIT_BAL,sensitive,Financial information; an attacker who knows it approximately uses it as an extra QI (extended scenario)
+PAY_0,sensitive,Repayment history of the customer
+PAY_2,sensitive,Repayment history of the customer
+PAY_3,sensitive,Repayment history of the customer
+PAY_4,sensitive,Repayment history of the customer
+PAY_5,sensitive,Repayment history of the customer
+PAY_6,sensitive,Repayment history of the customer
+BILL_AMT1,sensitive,Monthly bill amounts: private financial data
+BILL_AMT2,sensitive,Monthly bill amounts: private financial data
+BILL_AMT3,sensitive,Monthly bill amounts: private financial data
+BILL_AMT4,sensitive,Monthly bill amounts: private financial data
+BILL_AMT5,sensitive,Monthly bill amounts: private financial data
+BILL_AMT6,sensitive,Monthly bill amounts: private financial data
+PAY_AMT1,sensitive,Monthly payments: private financial data
+PAY_AMT2,sensitive,Monthly payments: private financial data
+PAY_AMT3,sensitive,Monthly payments: private financial data
+PAY_AMT4,sensitive,Monthly payments: private financial data
+PAY_AMT5,sensitive,Monthly payments: private financial data
+PAY_AMT6,sensitive,Monthly payments: private financial data
