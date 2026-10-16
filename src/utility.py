@@ -1,4 +1,4 @@
-# Utility measures: AUC of a classifier that predicts `default`
+# Utility measures: AUC of a classifier that predicts `default`, information loss
 from sklearn.compose import ColumnTransformer
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, roc_auc_score
@@ -20,11 +20,8 @@ def split_indices(df, seed=SEED):
 
 def evaluate_classifier(df, qis, train_idx, test_idx):
     # logistic regression on all columns except the target:
-    # QIs are one-hot encoded (they may be generalized strings), the rest is scaled
-    # suppressed records are missing from df, so keep only the indices that are left
-    train_idx = df.index.intersection(train_idx)
-    test_idx = df.index.intersection(test_idx)
-
+    # QIs are one-hot encoded (generalized strings, missing = its own category),
+    # the rest is scaled
     other = [c for c in df.columns if c not in qis and c != TARGET]
     model = Pipeline([
         ("prep", ColumnTransformer([
@@ -45,3 +42,13 @@ def evaluate_classifier(df, qis, train_idx, test_idx):
         "auc": roc_auc_score(df.loc[test_idx, TARGET], proba),
         "accuracy": accuracy_score(df.loc[test_idx, TARGET], pred),
     }
+
+
+def information_loss_continuous(original, protected, cols):
+    # MSE, MAE and relative change of mean / variance for numeric columns
+    raise NotImplementedError
+
+
+def information_loss_categorical(original, protected, cols):
+    # share of records whose category changed (missing counts as changed)
+    raise NotImplementedError

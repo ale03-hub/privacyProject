@@ -1,14 +1,9 @@
 # Generalization hierarchies for quasi-identifiers
 # Level 0 = original values; each successive level is coarser.
-# The last level of every hierarchy is "*" (the attribute is fully suppressed).
 
 
 def _identity(s):
     return s
-
-
-def _star(s):
-    return s.map(lambda _: "*")
 
 
 def _bands(width):
@@ -28,18 +23,17 @@ def _education_2(s):
     return s.map(lambda e: "higher" if e in (1, 2) else "other")
 
 
+def _marriage_2(s):
+    # 1 married -> married; 2 single, 3 others -> not married
+    return s.map(lambda m: "married" if m == 1 else "not married")
+
+
 HIERARCHIES = {
-    "AGE": [_identity, _bands(5), _bands(10), _age_3, _star],
-    "EDUCATION": [_identity, _education_2, _star],
-    "MARRIAGE": [_identity, _star],
-    "SEX": [_identity, _star],
-    "LIMIT_BAL": [_identity, _bands(50_000), _bands(100_000), _bands(200_000), _star],
+    "AGE": [_identity, _bands(5), _bands(10), _age_3],
+    "EDUCATION": [_identity, _education_2],
+    "MARRIAGE": [_identity, _marriage_2],
+    "LIMIT_BAL": [_identity, _bands(50_000), _bands(100_000), _bands(200_000)],
 }
-
-
-def max_levels(qis):
-    # highest generalization level available for each quasi-identifier
-    return {q: len(HIERARCHIES[q]) - 1 for q in qis}
 
 
 def generalize(df, levels):

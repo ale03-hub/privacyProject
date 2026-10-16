@@ -7,7 +7,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import pandas as pd
 
 from src.data import load_clean, sanitize, QI, QI_EXT, IDENTIFIERS, SEED
-from src.risk import uniqueness, small_class_rate, k_anonymity, make_external, linkage_rate
+from src.risk import sample_uniqueness, rare_combination_rate, make_external, record_linkage
 from src.utility import split_indices, evaluate_classifier
 
 os.makedirs("results", exist_ok=True)
@@ -30,10 +30,9 @@ def main():
         rows.append({
             "scenario": name,
             "qis": "+".join(qis),
-            "uniqueness": uniqueness(released, qis),
-            "records_in_classes_lt5": small_class_rate(released, qis, 5),
-            "k": k_anonymity(released, qis),
-            "linkage_rate": linkage_rate(released, external, qis),
+            "uniqueness": sample_uniqueness(released, qis),
+            "rare_combinations_lt5": rare_combination_rate(released, qis, 5),
+            "linkage_rate": record_linkage(released, external, qis),
             "auc": util["auc"],
             "accuracy": util["accuracy"],
         })
@@ -42,7 +41,7 @@ def main():
     baseline.to_csv("results/baseline.csv", index=False)
     print()
     print(baseline.round(4).to_string(index=False))
-    print("\nWithout identifiers k = 1 in both scenarios: some records are unique, "
+    print("\nWithout identifiers some records are still unique on the QIs, "
           "and knowing LIMIT_BAL makes many customers re-identifiable by linkage.")
 
 

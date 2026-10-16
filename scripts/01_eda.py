@@ -12,7 +12,7 @@ import pandas as pd
 import seaborn as sns
 
 from src.data import load_clean, QI, QI_EXT, TARGET
-from src.risk import class_sizes
+from src.risk import combination_sizes
 
 sns.set_theme(style="whitegrid", context="talk")
 os.makedirs("results", exist_ok=True)
@@ -62,27 +62,27 @@ def plot_qi_distributions(df):
     plt.close()
 
 
-def class_size_shares(df):
+def combination_size_shares(df):
     bins = [0, 1, 4, 9, np.inf]
     labels = ["1 (unique)", "2-4", "5-9", ">=10"]
     shares = {}
     for name, qis in [("QI", QI), ("QI + LIMIT_BAL", QI_EXT)]:
-        sizes = class_sizes(df, qis)
+        sizes = combination_sizes(df, qis)
         shares[name] = pd.cut(sizes, bins=bins, labels=labels).value_counts(normalize=True).reindex(labels)
     shares = pd.DataFrame(shares)
-    shares.index.name = "class size"
+    shares.index.name = "combination size"
     return shares
 
 
-def plot_class_sizes(shares):
+def plot_combination_sizes(shares):
     ax = shares.T.plot(kind="bar", stacked=True, figsize=(9, 6), colormap="viridis_r")
     ax.set_ylabel("share of records")
     ax.set_xlabel("")
-    ax.set_title("Size of the equivalence class of each record")
-    ax.legend(title="class size", bbox_to_anchor=(1.02, 1), loc="upper left")
+    ax.set_title("How many records share each record's QI combination")
+    ax.legend(title="records sharing the combination", bbox_to_anchor=(1.02, 1), loc="upper left")
     plt.xticks(rotation=0)
     plt.tight_layout()
-    plt.savefig("figures/equivalence_class_sizes_original.png", dpi=300)
+    plt.savefig("figures/qi_combination_sizes_original.png", dpi=300)
     plt.close()
 
 
@@ -104,9 +104,9 @@ def main():
 
     plot_qi_distributions(df)
 
-    shares = class_size_shares(df)
-    plot_class_sizes(shares)
-    print("\nshare of records by equivalence class size (identifiers removed):")
+    shares = combination_size_shares(df)
+    plot_combination_sizes(shares)
+    print("\nshare of records by QI combination size (identifiers removed):")
     print(shares.round(4).to_string())
 
 

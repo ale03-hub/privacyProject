@@ -15,10 +15,10 @@ con misura del trade-off rischio/utilità tramite R-U confidentiality map.
 ```
 src/
   data.py         caricamento, pulizia, identifier sintetici, sanitize
-  hierarchies.py  gerarchie di generalizzazione
-  risk.py         uniqueness, record linkage, k, ℓ-diversity, t-closeness
-  utility.py      classificatore (AUC), information loss, discernibility
-  protection.py   k-anonymity (full-domain, Mondrian), tecniche perturbative
+  hierarchies.py  gerarchie per global recoding / generalization
+  risk.py         sample uniqueness, record linkage, attribute disclosure rate
+  utility.py      classificatore (AUC), information loss continuo e categorico
+  protection.py   masking non perturbativo e perturbativo
 scripts/          pipeline numerata (01_eda, 02_baseline, 03_experiments, 04_figures)
 main.py           esegue la pipeline
 results/          tabelle CSV e summary.md
