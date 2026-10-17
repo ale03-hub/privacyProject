@@ -18,8 +18,20 @@ QI = ["SEX", "EDUCATION", "MARRIAGE", "AGE"]
 # attacker who also knows the credit limit
 QI_EXT = QI + ["LIMIT_BAL"]
 
+# QIs that are categorical codes / numeric measures
+CATEGORICAL = ["SEX", "EDUCATION", "MARRIAGE"]
+NUMERIC_QIS = ["AGE", "LIMIT_BAL"]
+
 # direct identifiers
 IDENTIFIERS = ["ID", "customer_code", "phone"]
+
+# names of the 23 features when ucimlrepo returns them as X1..X23
+UCI_FEATURES = (
+    ["LIMIT_BAL", "SEX", "EDUCATION", "MARRIAGE", "AGE"]
+    + ["PAY_0"] + [f"PAY_{i}" for i in range(2, 7)]
+    + [f"BILL_AMT{i}" for i in range(1, 7)]
+    + [f"PAY_AMT{i}" for i in range(1, 7)]
+)
 
 SEX_LABELS = {1: "male", 2: "female"}
 EDUCATION_LABELS = {1: "graduate", 2: "university", 3: "high school", 4: "others"}
@@ -43,6 +55,7 @@ def load():
 
     # fix column names (they differ depending on the source)
     df = df.rename(columns={
+        **{f"X{i}": name for i, name in enumerate(UCI_FEATURES, start=1)},
         "PAY_1": "PAY_0",
         "default payment next month": TARGET,
         "Y": TARGET,

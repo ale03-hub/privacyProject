@@ -6,7 +6,7 @@ def _identity(s):
     return s
 
 
-def _bands(width):
+def bands(width):
     # fixed-width bands, e.g. width 5 -> "20-24", "25-29", ...
     def f(s):
         lo = (s // width) * width
@@ -29,10 +29,10 @@ def _marriage_2(s):
 
 
 HIERARCHIES = {
-    "AGE": [_identity, _bands(5), _bands(10), _age_3],
+    "AGE": [_identity, bands(5), bands(10), _age_3],
     "EDUCATION": [_identity, _education_2],
     "MARRIAGE": [_identity, _marriage_2],
-    "LIMIT_BAL": [_identity, _bands(50_000), _bands(100_000), _bands(200_000)],
+    "LIMIT_BAL": [_identity, bands(50_000), bands(100_000), bands(200_000)],
 }
 
 
