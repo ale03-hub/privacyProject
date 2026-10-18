@@ -58,7 +58,7 @@ def plot_qi_distributions(df):
     axes[1, 2].set_title(f"default (base rate {df[TARGET].mean():.1%})")
     axes[1, 2].set_xlabel("")
     plt.tight_layout()
-    plt.savefig("figures/qi_distributions.png", dpi=300)
+    plt.savefig("figures/qi_distributions.png", bbox_inches='tight', dpi=300)
     plt.close()
 
 
@@ -82,7 +82,7 @@ def plot_combination_sizes(shares):
     ax.legend(title="records sharing the combination", bbox_to_anchor=(1.02, 1), loc="upper left")
     plt.xticks(rotation=0)
     plt.tight_layout()
-    plt.savefig("figures/qi_combination_sizes_original.png", dpi=300)
+    plt.savefig("figures/qi_combination_sizes_original.png", bbox_inches='tight', dpi=300)
     plt.close()
 
 
