@@ -1,5 +1,4 @@
 # Final figures: privacy risk, utility and R-U confidentiality maps
-# Reads only results/experiments.csv; no experiment is re-run.
 import os
 import sys
 
@@ -207,6 +206,69 @@ def plot_utility_by_technique(df):
     plt.close(fig)
     return out
 
+# per-column information loss shown in the heatmap (column -> header)
+IL_COLUMNS = {"il_SEX": "SEX", "il_EDUCATION": "EDUCATION", "il_MARRIAGE": "MARRIAGE",
+              "il_AGE": "AGE", "il_LIMIT_BAL": "LIMIT_BAL", "il_total": "total"}
+
+
+def plot_attribute_disclosure(df):
+    """Attribute disclosure rate of the original data and of the non-perturbative configurations."""
+    # the measure is NaN for perturbative configurations (groups no longer match real people)
+    d_all = df[df["attr_disclosure_rate"].notna() & (df["config_id"] != "no_data")]
+    fig, axes = plt.subplots(1, 2, figsize=(17, 8), constrained_layout=True)
+
+    for ax, scenario in zip(axes, ["QI", "QI_EXT"]):
+        d = d_all[d_all["scenario"] == scenario].sort_values("attr_disclosure_rate").reset_index(drop=True)
+        original = d.loc[d["config_id"] == "original", "attr_disclosure_rate"].iloc[0]
+        # red bars: the protection leaves more records exposed than the original data
+        colors = ["0.6" if c == "original" else ("#C44E52" if v > original else "#4C72B0")
+                  for c, v in zip(d["config_id"], d["attr_disclosure_rate"])]
+        y = np.arange(len(d))
+        ax.barh(y, d["attr_disclosure_rate"], color=colors, height=0.7)
+        ax.axvline(original, linestyle=":", linewidth=1.5, color="0.3")
+        for yi, v in zip(y, d["attr_disclosure_rate"]):
+            ax.text(v, yi, f" {v:.2%}", va="center", fontsize=11)
+        ax.set_yticks(y)
+        ax.set_yticklabels(d["label"], fontsize=12)
+        ax.set_xlabel("Records in a QI group where everyone has the same default value")
+        ax.set_title(SCENARIO_TITLES[scenario])
+        ax.xaxis.set_major_formatter(PercentFormatter(1.0))
+        ax.set_xlim(0, d["attr_disclosure_rate"].max() * 1.2)
+        ax.grid(axis="y", visible=False)
+
+    handles = [plt.Rectangle((0, 0), 1, 1, color=c, label=l) for c, l in
+               [("0.6", "original"), ("#4C72B0", "lower than original"), ("#C44E52", "higher than original")]]
+    fig.legend(handles=handles, loc="lower center", ncol=3, fontsize=13, bbox_to_anchor=(0.5, -0.07))
+    fig.suptitle("Attribute disclosure after non-perturbative protection\n(lower is better)", fontsize=20)
+    out = os.path.join(FIGURES_DIR, "attribute_disclosure.png")
+    fig.savefig(out, dpi=300, bbox_inches="tight")
+    plt.close(fig)
+    return out
+
+
+def plot_information_loss_by_attribute(df):
+    """Information loss of each QI column for every configuration."""
+    d = df[~df["config_id"].isin(["original", "no_data"])].drop_duplicates("config_id")
+    d = d.sort_values("il_total").set_index("label")[list(IL_COLUMNS)].rename(columns=IL_COLUMNS)
+    # write only the losses that are not zero, so the table stays readable (the total always)
+    values = d.to_numpy()
+    annot = np.where(values >= 0.005, np.char.mod("%.2f", values), "")
+    annot[:, -1] = np.char.mod("%.2f", values[:, -1])
+
+    fig, ax = plt.subplots(figsize=(12, 14), constrained_layout=True)
+    sns.heatmap(d, annot=annot, fmt="", cmap="Reds", vmin=0, vmax=1, linewidths=0.5,
+                annot_kws={"fontsize": 12}, ax=ax,
+                cbar_kws={"label": "information loss (0 = intact, 1 = no information left)", "shrink": 0.6})
+    ax.axvline(len(IL_COLUMNS) - 1, color="black", linewidth=2.5)   # separates the total
+    ax.set_xlabel("")
+    ax.set_ylabel("")
+    ax.tick_params(axis="x", labeltop=True, labelbottom=False, labelsize=13)
+    ax.tick_params(axis="y", labelsize=12)
+    ax.set_title("Where each protection loses information\n(rows sorted by total loss)", fontsize=18)
+    out = os.path.join(FIGURES_DIR, "information_loss_by_attribute.png")
+    fig.savefig(out, dpi=300, bbox_inches="tight")
+    plt.close(fig)
+    return out
 
 def pareto_frontier(d):
     """Return non-dominated points: maximize utility, minimize linkage risk."""
@@ -325,6 +387,8 @@ def main():
         plot_risk_by_technique(df),
         plot_utility_by_technique(df),
         plot_ru_map(df),
+        plot_attribute_disclosure(df),
+        plot_information_loss_by_attribute(df),
     ]
     print_selected_points(df)
     print("\nSaved figures:")
